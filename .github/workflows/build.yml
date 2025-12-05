@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: AutomatedDirectoryCleanup
+        working-directory: 
 
     steps:
       - uses: actions/checkout@v4
