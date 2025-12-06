@@ -16,7 +16,7 @@ public class DirectoryCleaner
         }
 
         var filesToDelete = files.Where(f => cleanupDirectory.Extensions.Contains(f.Extension[1..]))
-            .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.Age))
+            .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.AgeTimeSpan.Days))
             .ToList();
 
         filesToDelete.ForEach(f => f.Delete());
