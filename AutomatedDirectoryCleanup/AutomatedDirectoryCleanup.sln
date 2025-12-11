@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36717.8 d17.14
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11222.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomatedDirectoryCleanup", "AutomatedDirectoryCleanup\AutomatedDirectoryCleanup.csproj", "{4B9BB529-E231-41F0-98DC-EC01F0D5657C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomatedDirectoryCleanupTests", "Tests\AutomatedDirectoryCleanupTests\AutomatedDirectoryCleanupTests.csproj", "{D627E2CA-273D-4426-9B63-066135BA388F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{1A5605A6-C6B9-4276-9FC6-41E006299068}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{D627E2CA-273D-4426-9B63-066135BA388F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D627E2CA-273D-4426-9B63-066135BA388F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D627E2CA-273D-4426-9B63-066135BA388F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A5605A6-C6B9-4276-9FC6-41E006299068}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A5605A6-C6B9-4276-9FC6-41E006299068}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A5605A6-C6B9-4276-9FC6-41E006299068}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A5605A6-C6B9-4276-9FC6-41E006299068}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
