@@ -1,9 +1,7 @@
-﻿//using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace AutomatedDirectoryCleanup;
 
-//[InjectDependency(ServiceLifetime.Transient)]
 public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
 {
     public void DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory)
