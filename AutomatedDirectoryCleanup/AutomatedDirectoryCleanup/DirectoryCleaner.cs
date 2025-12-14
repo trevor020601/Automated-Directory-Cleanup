@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Polly;
+using System.Collections.Concurrent;
 
 namespace AutomatedDirectoryCleanup;
 
@@ -16,7 +17,7 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
             throw new DirectoryNotFoundException(cleanupDirectory.DirectoryPath);
         }
 
-        var files = new FileSystem().GetFiles(cleanupDirectory.DirectoryPath);
+        var files = new DirectoryInfo(cleanupDirectory.DirectoryPath).EnumerateFiles();
         var filesToDelete = files.Where(f => cleanupDirectory.Extensions.Contains(f.Extension[1..]))
             .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.AgeTimeSpan.Days))
             .ToList();
@@ -25,6 +26,9 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
         {
             ShouldHandle = new PredicateBuilder().Handle<IOException>(ex => (ex.HResult & _errorCodeBits) == _errorCodeSharingViolation),
             MaxRetryAttempts = 3,
+            BackoffType = DelayBackoffType.Exponential,
+            UseJitter = true,
+            Name = "Retry Strategy for Locked Files",
             Delay = TimeSpan.FromSeconds(5),
             OnRetry = args =>
             {
@@ -35,7 +39,8 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
 
         var pipelineBuilder = new ResiliencePipelineBuilder().AddRetry(retryStrategyOptions).Build();
 
-        foreach (var file in filesToDelete)
+        var exceptions = new ConcurrentQueue<Exception>();
+        Parallel.ForEach(filesToDelete, file =>
         {
             try
             {
@@ -47,8 +52,13 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
             catch (Exception ex)
             {
                 logger.LogError(ex, "{Name} has been skipped due to exception: {Message}", file.Name, ex.Message);
-                continue;
+                exceptions.Enqueue(ex);
             }
+        });
+
+        if (!exceptions.IsEmpty)
+        {
+            throw new AggregateException(exceptions);
         }
     }
 
@@ -59,12 +69,13 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
             throw new DirectoryNotFoundException(cleanupDirectory.DirectoryPath);
         }
 
-        var files = new FileSystem().GetFiles(cleanupDirectory.DirectoryPath);
+        var files = new DirectoryInfo(cleanupDirectory.DirectoryPath).EnumerateFiles();
         var filesToDelete = files.Where(f => cleanupDirectory.Extensions.Contains(f.Extension[1..]))
             .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.AgeTimeSpan.Days))
             .ToList();
 
-        foreach (var file in filesToDelete)
+        var exceptions = new ConcurrentQueue<Exception>();
+        Parallel.ForEach(filesToDelete, file =>
         {
             try
             {
@@ -82,8 +93,13 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
             catch (Exception ex)
             {
                 logger.LogError(ex, "{Name} has been skipped due to exception: {Message}", file.Name, ex.Message);
-                continue;
+                exceptions.Enqueue(ex);
             }
+        });
+
+        if (!exceptions.IsEmpty)
+        {
+            throw new AggregateException(exceptions);
         }
     }
 }
