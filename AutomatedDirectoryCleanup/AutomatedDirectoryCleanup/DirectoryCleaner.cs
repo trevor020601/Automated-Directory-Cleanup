@@ -12,12 +12,12 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
 
     public void DeleteOldFilesByExtensionPolly(CleanupDirectory cleanupDirectory)
     {
-        if (!Directory.Exists(cleanupDirectory.DirectoryPath))
+        if (!Directory.Exists(cleanupDirectory.DirectoryUri.LocalPath))
         {
-            throw new DirectoryNotFoundException(cleanupDirectory.DirectoryPath);
+            throw new DirectoryNotFoundException(cleanupDirectory.DirectoryUri.LocalPath);
         }
 
-        var files = new DirectoryInfo(cleanupDirectory.DirectoryPath).EnumerateFiles();
+        var files = new DirectoryInfo(cleanupDirectory.DirectoryUri.LocalPath).EnumerateFiles();
         var filesToDelete = files.Where(f => cleanupDirectory.Extensions.Contains(f.Extension[1..]))
             .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.AgeTimeSpan.Days))
             .ToList();
@@ -64,12 +64,12 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
 
     public void DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory)
     {
-        if (!Directory.Exists(cleanupDirectory.DirectoryPath))
+        if (!Directory.Exists(cleanupDirectory.DirectoryUri.LocalPath))
         {
-            throw new DirectoryNotFoundException(cleanupDirectory.DirectoryPath);
+            throw new DirectoryNotFoundException(cleanupDirectory.DirectoryUri.LocalPath);
         }
 
-        var files = new DirectoryInfo(cleanupDirectory.DirectoryPath).EnumerateFiles();
+        var files = new DirectoryInfo(cleanupDirectory.DirectoryUri.LocalPath).EnumerateFiles();
         var filesToDelete = files.Where(f => cleanupDirectory.Extensions.Contains(f.Extension[1..]))
             .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.AgeTimeSpan.Days))
             .ToList();
