@@ -22,10 +22,11 @@ public class FileInfoExtensionsTest : IDisposable
         var lockedFilePath = Path.Combine(_testDir, "LockedFile.txt");
         File.WriteAllText(lockedFilePath, "This file should be locked!");
         var lockedFileInfo = new FileInfo(lockedFilePath);
-        var lockStream = lockedFileInfo.Open(FileMode.Open, FileAccess.Read);
-        var isLocked = FileInfoExtensions.IsFileLocked(lockedFileInfo);
-        Assert.True(isLocked);
-        lockStream.Dispose();
+        using (var lockStream = lockedFileInfo.Open(FileMode.Open, FileAccess.Read))
+        {
+            var isLocked = FileInfoExtensions.IsFileLocked(lockedFileInfo);
+            Assert.True(isLocked);
+        };
     }
 
     [Fact]
