@@ -1,41 +1,47 @@
 ﻿using AutomatedDirectoryCleanup;
-using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using System.Text;
 
 namespace AutomatedDirectoryCleanupTests;
 
-public class FileInfoExtensionsTest
+public class FileInfoExtensionsTest : IDisposable
 {
-    [Fact(Skip = "Needs to be fixed")]
+    private readonly string _testDir = Path.Combine(Path.GetTempPath(), "FileInfoExtensionsTestDir");
+
+    public FileInfoExtensionsTest()
+    {
+        if (Directory.Exists(_testDir))
+        {
+            Directory.Delete(_testDir, true);
+        }
+
+        Directory.CreateDirectory(_testDir);
+    }
+
+    [Fact]
     public void ShouldReturnTrueIfFileIsLocked()
     {
-        var mockFileSystem = new MockFileSystem();
-        mockFileSystem.AddFile(@"C:\test.txt", new MockFileData("This file is locked!"));
-        var mockFileInfo = mockFileSystem.FileInfo.New(@"C:\test.txt");
-        var testFileInfo = new FileInfo(mockFileInfo.Name);
-        //var file = mockFileSystem.GetFile(@"C:\test.txt");
-        //var testFileSystem = new TestFileSystem(new System.IO.Abstractions.FileSystem());
-        using var lockStream = testFileInfo.Open(FileMode.Open, FileAccess.Read);
-        var isLocked = FileInfoExtensions.IsFileLocked(testFileInfo);
+        var lockedFilePath = Path.Combine(_testDir, "LockedFile.txt");
+        File.WriteAllText(lockedFilePath, "This file should be locked!");
+        var lockedFileInfo = new FileInfo(lockedFilePath);
+        using var lockStream = lockedFileInfo.Open(FileMode.Open, FileAccess.Read);
+        var isLocked = FileInfoExtensions.IsFileLocked(lockedFileInfo);
         Assert.True(isLocked);
     }
 
     [Fact]
     public void ShouldReturnFalseIfFileIsUnlocked()
     {
-
-        //var isLocked = FileInfoExtensions.IsFileLocked();
-        //Assert.False(isLocked);
+        var unlockedFilePath = Path.Combine(_testDir, "UnlockedFile.txt");
+        File.WriteAllText(unlockedFilePath, "This file should be unlocked!");
+        var unlockedFileInfo = new FileInfo(unlockedFilePath);
+        var isLocked = FileInfoExtensions.IsFileLocked(unlockedFileInfo);
+        Assert.False(isLocked);
     }
 
-    public class TestFileSystem(System.IO.Abstractions.IFileSystem fileSystem)
+    public void Dispose()
     {
-        public IFileInfo GetFileInfo(string path)
+        if (Directory.Exists(_testDir))
         {
-            return fileSystem.FileInfo.New(path);
+            Directory.Delete(_testDir, true);
         }
     }
 }

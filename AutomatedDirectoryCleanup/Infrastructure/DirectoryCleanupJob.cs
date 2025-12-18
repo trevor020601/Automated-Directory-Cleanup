@@ -8,10 +8,9 @@ public sealed class DirectoryCleanupJob(DirectoryCleaner directoryCleaner) : IJo
 {
     public Task Execute(IJobExecutionContext context)
     {
-        var cleanupDir = new CleanupDirectory
+        var cleanupDir = new CleanupDirectory(@"C:\testdir")
         {
             Age = 30,
-            DirectoryPath = @"C:\testdir",
             Extensions = ["*"]
         };
         directoryCleaner.DeleteOldFilesByExtension(cleanupDir);

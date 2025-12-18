@@ -4,7 +4,7 @@ public sealed class CleanupDirectory
 {
     const int MAX_PATH_LENGTH = 260; // Standard Windows limit
 
-    public Uri DirectoryUri { get; set; } = default!;
+    public Uri DirectoryUri { get; private set; }
 
     public List<string> Extensions { get; set; } = ["*"];
 
