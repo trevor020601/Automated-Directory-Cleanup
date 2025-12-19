@@ -17,10 +17,10 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
             throw new DirectoryNotFoundException(cleanupDirectory.DirectoryUri.LocalPath);
         }
 
-        var files = new DirectoryInfo(cleanupDirectory.DirectoryUri.LocalPath).EnumerateFiles();
-        var filesToDelete = files.Where(f => cleanupDirectory.Extensions.Contains(f.Extension[1..]))
-            .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.AgeTimeSpan.Days))
-            .ToList();
+        var directoryInfo = new DirectoryInfo(cleanupDirectory.DirectoryUri.LocalPath);
+        var filesToDelete = cleanupDirectory.Extensions
+            .SelectMany(extension => directoryInfo.EnumerateFiles($"*.{extension}"))
+            .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.AgeTimeSpan.Days));
 
         var retryStrategyOptions = new Polly.Retry.RetryStrategyOptions()
         {
@@ -69,10 +69,10 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
             throw new DirectoryNotFoundException(cleanupDirectory.DirectoryUri.LocalPath);
         }
 
-        var files = new DirectoryInfo(cleanupDirectory.DirectoryUri.LocalPath).EnumerateFiles();
-        var filesToDelete = files.Where(f => cleanupDirectory.Extensions.Contains(f.Extension[1..]))
-            .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.AgeTimeSpan.Days))
-            .ToList();
+        var directoryInfo = new DirectoryInfo(cleanupDirectory.DirectoryUri.LocalPath);
+        var filesToDelete = cleanupDirectory.Extensions
+            .SelectMany(extension => directoryInfo.EnumerateFiles($"*.{extension}"))
+            .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.AgeTimeSpan.Days));
 
         var exceptions = new ConcurrentQueue<Exception>();
         Parallel.ForEach(filesToDelete, file =>
