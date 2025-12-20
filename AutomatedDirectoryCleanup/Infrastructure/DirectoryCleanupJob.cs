@@ -10,7 +10,7 @@ public sealed class DirectoryCleanupJob(DirectoryCleaner directoryCleaner) : IJo
     {
         var cleanupDir = new CleanupDirectory(@"C:\testdir")
         {
-            Age = 30,
+            TicksSinceCreation = TimeSpan.FromDays(30).Ticks,
             Extensions = ["*"]
         };
         directoryCleaner.DeleteOldFilesByExtension(cleanupDir);

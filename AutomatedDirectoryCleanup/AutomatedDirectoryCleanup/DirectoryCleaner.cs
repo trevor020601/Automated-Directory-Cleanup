@@ -10,17 +10,16 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
     // https://learn.microsoft.com/en-us/dotnet/standard/io/handling-io-errors#handling-ioexception
     private const int _errorCodeSharingViolation = 32;
 
-    public void DeleteOldFilesByExtensionPolly(CleanupDirectory cleanupDirectory)
+    public void DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory)
     {
-        if (!Directory.Exists(cleanupDirectory.DirectoryUri.LocalPath))
+        if (!cleanupDirectory.Exists)
         {
-            throw new DirectoryNotFoundException(cleanupDirectory.DirectoryUri.LocalPath);
+            throw new DirectoryNotFoundException(cleanupDirectory.Directory.FullName);
         }
 
-        var directoryInfo = new DirectoryInfo(cleanupDirectory.DirectoryUri.LocalPath);
         var filesToDelete = cleanupDirectory.Extensions
-            .SelectMany(extension => directoryInfo.EnumerateFiles($"*.{extension}"))
-            .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.AgeTimeSpan.Days));
+            .SelectMany(extension => cleanupDirectory.Directory.EnumerateFiles($"*.{extension}"))
+            .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.TimeSpanSinceCreation.Days));
 
         var retryStrategyOptions = new Polly.Retry.RetryStrategyOptions()
         {
@@ -48,47 +47,6 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
                     file.Delete();
                     logger.LogInformation("{Name} has been deleted.", file.Name);
                 });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "{Name} has been skipped due to exception: {Message}", file.Name, ex.Message);
-                exceptions.Enqueue(ex);
-            }
-        });
-
-        if (!exceptions.IsEmpty)
-        {
-            throw new AggregateException(exceptions);
-        }
-    }
-
-    public void DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory)
-    {
-        if (!Directory.Exists(cleanupDirectory.DirectoryUri.LocalPath))
-        {
-            throw new DirectoryNotFoundException(cleanupDirectory.DirectoryUri.LocalPath);
-        }
-
-        var directoryInfo = new DirectoryInfo(cleanupDirectory.DirectoryUri.LocalPath);
-        var filesToDelete = cleanupDirectory.Extensions
-            .SelectMany(extension => directoryInfo.EnumerateFiles($"*.{extension}"))
-            .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.AgeTimeSpan.Days));
-
-        var exceptions = new ConcurrentQueue<Exception>();
-        Parallel.ForEach(filesToDelete, file =>
-        {
-            try
-            {
-                var isLocked = FileInfoExtensions.IsFileLocked(file);
-                if (!isLocked)
-                {
-                    file.Delete();
-                    logger.LogInformation("{Name} has been deleted.", file.Name);
-                }
-                else
-                {
-                    logger.LogInformation("{Name} is locked. Skipping...", file.Name);
-                }
             }
             catch (Exception ex)
             {

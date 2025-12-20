@@ -4,13 +4,15 @@ public sealed class CleanupDirectory
 {
     const int MAX_PATH_LENGTH = 260; // Standard Windows limit
 
-    public Uri DirectoryUri { get; private set; }
+    public DirectoryInfo Directory { get; private set; }
 
-    public List<string> Extensions { get; set; } = ["*"];
+    public IEnumerable<string> Extensions { get; set; } = ["*"];
 
-    public int Age { get; set; }
+    public long TicksSinceCreation { get; set; }
 
-    public TimeSpan AgeTimeSpan => TimeSpan.FromDays(Age);
+    public TimeSpan TimeSpanSinceCreation => TimeSpan.FromTicks(TicksSinceCreation);
+
+    public bool Exists => Directory.Exists;
 
     public CleanupDirectory(string directoryPath)
     {
@@ -20,10 +22,6 @@ public sealed class CleanupDirectory
             throw new PathTooLongException($"Path provided is too long: {directoryPath}");
         }
 
-        DirectoryUri = new Uri(directoryPath);
-        if (!DirectoryUri.IsUnc)
-        {
-            throw new UriFormatException("Path provided is not in UNC.");
-        }
+        Directory = new DirectoryInfo(directoryPath);
     }
 }
