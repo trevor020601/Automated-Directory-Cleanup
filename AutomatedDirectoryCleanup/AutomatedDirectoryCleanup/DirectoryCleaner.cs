@@ -10,7 +10,7 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
     // https://learn.microsoft.com/en-us/dotnet/standard/io/handling-io-errors#handling-ioexception
     private const int _errorCodeSharingViolation = 32;
 
-    public void DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory)
+    public int DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory)
     {
         if (!cleanupDirectory.Exists)
         {
@@ -38,26 +38,42 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
 
         var pipelineBuilder = new ResiliencePipelineBuilder().AddRetry(retryStrategyOptions).Build();
 
+        var numberOfFilesDeleted = 0;
         var exceptions = new ConcurrentQueue<Exception>();
-        Parallel.ForEach(filesToDelete, file =>
+        Parallel.ForEach(
+            filesToDelete,
+            () => 0, // localInit: Function to initialize the local counter for each task (starts at 0)
+            (file, _, localCount) =>
         {
             try
             {
                 pipelineBuilder.Execute(() => {
                     file.Delete();
+                    localCount++;
+                    //Interlocked.Increment(ref numberOfFilesDeleted);
                     logger.LogInformation("{Name} has been deleted.", file.Name);
                 });
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "{Name} has been skipped due to exception: {Message}", file.Name, ex.Message);
                 exceptions.Enqueue(ex);
             }
+
+            return localCount;
+        },
+        localCount =>
+        {
+            Interlocked.Add(ref numberOfFilesDeleted, localCount);
         });
 
         if (!exceptions.IsEmpty)
         {
-            throw new AggregateException(exceptions);
+            foreach (var ex in exceptions)
+            {
+                logger.LogError(ex, "An exception has occurred during the clean up: {Message}", ex.Message);
+            }
         }
+
+        return numberOfFilesDeleted;
     }
 }
