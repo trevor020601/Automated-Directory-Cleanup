@@ -5,6 +5,7 @@ namespace AutomatedDirectoryCleanupTests;
 public class FileInfoExtensionsTest : IDisposable
 {
     private readonly string _testDir = Path.Combine(Path.GetTempPath(), "FileInfoExtensionsTestDir");
+    private bool _disposed;
 
     public FileInfoExtensionsTest()
     {
@@ -39,9 +40,23 @@ public class FileInfoExtensionsTest : IDisposable
 
     public void Dispose()
     {
-        if (Directory.Exists(_testDir))
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
         {
-            Directory.Delete(_testDir, true);
+            if (disposing)
+            {
+                if (Directory.Exists(_testDir))
+                {
+                    Directory.Delete(_testDir, true);
+                }
+            }
+
+            _disposed = true;
         }
     }
 }
