@@ -21,6 +21,6 @@ public static class DependencyInjection
 
     public static void AddAutomatedDirectoryCleanup(this IServiceCollection services)
     {
-        services.AddTransient<DirectoryCleaner>();
+        services.AddTransient<IDirectoryCleaner, DirectoryCleaner>();
     }
 }

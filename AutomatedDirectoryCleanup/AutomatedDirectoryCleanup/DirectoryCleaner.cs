@@ -4,7 +4,12 @@ using System.Collections.Concurrent;
 
 namespace AutomatedDirectoryCleanup;
 
-public class DirectoryCleaner(ILogger<DirectoryCleaner> logger)
+public interface IDirectoryCleaner
+{
+    public int DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory);
+}
+
+public class DirectoryCleaner(ILogger<DirectoryCleaner> logger) : IDirectoryCleaner
 {
     private const int _errorCodeBits = 0x0000FFFF;
     // https://learn.microsoft.com/en-us/dotnet/standard/io/handling-io-errors#handling-ioexception
