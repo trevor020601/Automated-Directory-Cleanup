@@ -13,7 +13,8 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger) : IDirectoryClea
 {
     private const int _errorCodeBits = 0x0000FFFF;
     // https://learn.microsoft.com/en-us/dotnet/standard/io/handling-io-errors#handling-ioexception
-    private const int _errorCodeSharingViolation = 32;
+    private const int _errorCodeSharingViolationWindows = 32;
+    private const int _errorChodeSharingViolationLinux = 11;
 
     public int DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory)
     {
@@ -28,7 +29,12 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger) : IDirectoryClea
 
         var retryStrategyOptions = new Polly.Retry.RetryStrategyOptions()
         {
-            ShouldHandle = new PredicateBuilder().Handle<IOException>(ex => (ex.HResult & _errorCodeBits) == _errorCodeSharingViolation),
+            ShouldHandle = new PredicateBuilder()
+                .Handle<IOException>(
+                    ex => 
+                        (ex.HResult & _errorCodeBits) == (OperatingSystem.IsWindows() ? 
+                            _errorCodeSharingViolationWindows : 
+                            _errorChodeSharingViolationLinux)),
             MaxRetryAttempts = 3,
             BackoffType = DelayBackoffType.Exponential,
             UseJitter = true,

@@ -24,8 +24,10 @@ public class FileInfoExtensionsTest : IDisposable
         File.WriteAllText(lockedFilePath, "This file should be locked!");
         var lockedFileInfo = new FileInfo(lockedFilePath);
         using var lockStream = lockedFileInfo.Open(FileMode.Open, FileAccess.Read);
-        var isLocked = FileInfoExtensions.IsFileLockedGeneric(lockedFileInfo);
+        var isLocked = FileInfoExtensions.IsFileLocked(lockedFileInfo);
         Assert.True(isLocked);
+        var isLockedGeneric = FileInfoExtensions.IsFileLockedGeneric(lockedFileInfo);
+        Assert.True(isLockedGeneric);
     }
 
     [Fact]
@@ -36,6 +38,8 @@ public class FileInfoExtensionsTest : IDisposable
         var unlockedFileInfo = new FileInfo(unlockedFilePath);
         var isLocked = FileInfoExtensions.IsFileLocked(unlockedFileInfo);
         Assert.False(isLocked);
+        var isLockedGeneric = FileInfoExtensions.IsFileLockedGeneric(unlockedFileInfo);
+        Assert.False(isLockedGeneric);
     }
 
     public void Dispose()
