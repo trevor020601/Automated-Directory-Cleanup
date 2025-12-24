@@ -1,6 +1,5 @@
 ﻿using AutomatedDirectoryCleanup;
-using Microsoft.Extensions.Logging;
-using Moq;
+using Microsoft.Extensions.Logging.Testing;
 
 namespace AutomatedDirectoryCleanupTests;
 
@@ -22,7 +21,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
     [Fact]
     public void ShouldDeleteAllFilesInDirectory()
     {
-        var mockLogger = new Mock<ILogger<DirectoryCleaner>>();
+        var fakeLogger = new FakeLogger<DirectoryCleaner>();
 
         var testCleanupDir = new CleanupDirectory(_testDir)
         {
@@ -44,7 +43,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
         File.WriteAllText(testFile3Path, "This file should be deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
-        var testDirectoryCleaner = new DirectoryCleaner(mockLogger.Object);
+        var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
 
         var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 
@@ -54,7 +53,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
     [Fact(Skip = "This only works on Windows OS sadly; Figure out how to fix for Linux.")]
     public void ShouldDeleteUnlockedFilesAndSkipLockedFilesInDirectory()
     {
-        var mockLogger = new Mock<ILogger<DirectoryCleaner>>();
+        var fakeLogger = new FakeLogger<DirectoryCleaner>();
 
         var testCleanupDir = new CleanupDirectory(_testDir)
         {
@@ -77,7 +76,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
         File.WriteAllText(testFile3Path, "This file should be deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
-        var testDirectoryCleaner = new DirectoryCleaner(mockLogger.Object);
+        var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
 
         var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 
@@ -87,7 +86,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
     [Fact]
     public void ShouldOnlyDeleteFilesWithTxtExtension()
     {
-        var mockLogger = new Mock<ILogger<DirectoryCleaner>>();
+        var fakeLogger = new FakeLogger<DirectoryCleaner>();
 
         var testCleanupDir = new CleanupDirectory(_testDir)
         {
@@ -109,7 +108,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
         File.WriteAllText(testFile3Path, "This file should be not deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
-        var testDirectoryCleaner = new DirectoryCleaner(mockLogger.Object);
+        var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
 
         var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 
@@ -119,7 +118,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
     [Fact]
     public void ShouldOnlyDeleteFilesWithTxtAndTmpExtensions()
     {
-        var mockLogger = new Mock<ILogger<DirectoryCleaner>>();
+        var fakeLogger = new FakeLogger<DirectoryCleaner>();
 
         var testCleanupDir = new CleanupDirectory(_testDir)
         {
@@ -141,7 +140,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
         File.WriteAllText(testFile3Path, "This file should be not deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
-        var testDirectoryCleaner = new DirectoryCleaner(mockLogger.Object);
+        var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
 
         var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 
@@ -151,7 +150,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
     [Fact]
     public void ShouldOnlyDeleteFilesOlderThanTicksSinceCreation()
     {
-        var mockLogger = new Mock<ILogger<DirectoryCleaner>>();
+        var fakeLogger = new FakeLogger<DirectoryCleaner>();
 
         var testCleanupDir = new CleanupDirectory(_testDir)
         {
@@ -172,7 +171,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
         File.WriteAllText(testFile3Path, "This file should be deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
-        var testDirectoryCleaner = new DirectoryCleaner(mockLogger.Object);
+        var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
 
         var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 
