@@ -11,10 +11,6 @@ public interface IDirectoryCleaner
 
 public class DirectoryCleaner(ILogger<DirectoryCleaner> logger) : IDirectoryCleaner
 {
-    private const int _errorCodeBits = 0x0000FFFF;
-    // https://learn.microsoft.com/en-us/dotnet/standard/io/handling-io-errors#handling-ioexception
-    private const int _errorCodeSharingViolationWindows = 32;
-
     public int DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory)
     {
         if (!cleanupDirectory.Exists)
@@ -27,7 +23,7 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger) : IDirectoryClea
             .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.TimeSpanSinceCreation.Days));
 
         var lockedFilePredicate = OperatingSystem.IsWindows() ?
-            new PredicateBuilder().Handle<IOException>(ex => (ex.HResult & _errorCodeBits) == _errorCodeSharingViolationWindows) :
+            new PredicateBuilder().Handle<IOException>(ex => (ex.HResult & FileIOConstants._errorCodeBits) == FileIOConstants._errorCodeSharingViolationWindows) :
             new PredicateBuilder().Handle<IOException>(); // Mostly for Linux
 
         var retryStrategyOptions = new Polly.Retry.RetryStrategyOptions()

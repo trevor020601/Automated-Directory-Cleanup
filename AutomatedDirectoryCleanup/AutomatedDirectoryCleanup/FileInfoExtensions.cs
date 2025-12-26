@@ -2,11 +2,6 @@
 
 public static class FileInfoExtensions
 {
-    private const int _errorCodeBits = 0x0000FFFF;
-    // https://learn.microsoft.com/en-us/dotnet/standard/io/handling-io-errors#handling-ioexception
-    private const int _errorCodeSharingViolationWindows = 32;
-    private const int _errorChodeSharingViolationLinux = 11;
-
     public static bool IsFileLocked(FileInfo file)
     {
         try
@@ -15,12 +10,11 @@ public static class FileInfoExtensions
             return false;
         }
         // Check HResult property and its lower 16 bits 
-        catch (IOException ex) when ((ex.HResult & _errorCodeBits) == (
+        catch (IOException ex) when ((ex.HResult & FileIOConstants._errorCodeBits) == (
             OperatingSystem.IsWindows() ?
-                _errorCodeSharingViolationWindows :
-                _errorChodeSharingViolationLinux))
+                FileIOConstants._errorCodeSharingViolationWindows :
+                FileIOConstants._errorChodeSharingViolationLinux))
         {
-            // TODO: Log that file is locked
             return true;
         }
     }
@@ -34,7 +28,6 @@ public static class FileInfoExtensions
         }
         catch (IOException)
         {
-            // TODO: Log that file is locked
             return true;
         }
     }

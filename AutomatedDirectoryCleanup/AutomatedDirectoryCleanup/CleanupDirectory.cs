@@ -2,8 +2,6 @@
 
 public sealed class CleanupDirectory
 {
-    const int MAX_PATH_LENGTH = 260; // Standard Windows limit
-
     public DirectoryInfo Directory { get; private set; }
 
     public IEnumerable<string> Extensions { get; set; } = ["*"];
@@ -17,7 +15,7 @@ public sealed class CleanupDirectory
     public CleanupDirectory(string directoryPath)
     {
         // This will only work with Windows and if long path support is disabled
-        if (directoryPath.Length >= MAX_PATH_LENGTH)
+        if (directoryPath.Length >= FileIOConstants.MAX_PATH_LENGTH)
         {
             throw new PathTooLongException($"Path provided is too long: {directoryPath}");
         }
