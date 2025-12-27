@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutomatedDirectoryCleanupTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{1A5605A6-C6B9-4276-9FC6-41E006299068}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks\Benchmarks.csproj", "{FBBBBDAD-DAD2-4411-B12A-8E23C5C6F9F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1A5605A6-C6B9-4276-9FC6-41E006299068}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A5605A6-C6B9-4276-9FC6-41E006299068}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A5605A6-C6B9-4276-9FC6-41E006299068}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBBBBDAD-DAD2-4411-B12A-8E23C5C6F9F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBBBBDAD-DAD2-4411-B12A-8E23C5C6F9F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBBBBDAD-DAD2-4411-B12A-8E23C5C6F9F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBBBBDAD-DAD2-4411-B12A-8E23C5C6F9F9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
