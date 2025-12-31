@@ -19,6 +19,13 @@ public class AutomatedDirectoryCleanupTests : IDisposable
     }
 
     [Fact]
+    public void ShouldThrowExceptionIfPathIsTooLong()
+    {
+        var erroneousPath = @"C:\this\will\throw\an\exception".PadRight(300);
+        Assert.Throws<PathTooLongException>(() => new CleanupDirectory(erroneousPath));
+    }
+
+    [Fact]
     public void ShouldDeleteAllFilesInDirectory()
     {
         var fakeLogger = new FakeLogger<DirectoryCleaner>();
