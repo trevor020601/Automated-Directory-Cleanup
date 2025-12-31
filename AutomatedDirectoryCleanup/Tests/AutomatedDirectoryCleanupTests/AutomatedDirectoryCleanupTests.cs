@@ -3,21 +3,9 @@ using Microsoft.Extensions.Logging.Testing;
 
 namespace AutomatedDirectoryCleanupTests;
 
-public class AutomatedDirectoryCleanupTests : IDisposable
+[Collection("Directory Collection")]
+public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
 {
-    private readonly string _testDir = Path.Combine(Path.GetTempPath(), "AutomatedDirectoryCleanupTestDir");
-    private bool _disposed;
-
-    public AutomatedDirectoryCleanupTests()
-    {
-        if (Directory.Exists(_testDir))
-        {
-            Directory.Delete(_testDir, true);
-        }
-
-        Directory.CreateDirectory(_testDir);
-    }
-
     [Fact]
     public void ShouldThrowExceptionIfPathIsTooLong()
     {
@@ -30,7 +18,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
     {
         var fakeLogger = new FakeLogger<DirectoryCleaner>();
 
-        var testCleanupDir = new CleanupDirectory(_testDir)
+        var testCleanupDir = new CleanupDirectory(fixture._testDir)
         {
             Extensions = ["*"],
             TicksSinceCreation = TimeSpan.FromDays(30).Ticks
@@ -38,15 +26,15 @@ public class AutomatedDirectoryCleanupTests : IDisposable
 
         var now = DateTime.Now;
 
-        var testFile1Path = Path.Combine(_testDir, "TestFile1.txt");
+        var testFile1Path = Path.Combine(fixture._testDir, "TestFile1.txt");
         File.WriteAllText(testFile1Path, "This file should be deleted.");
         File.SetCreationTime(testFile1Path, now.AddDays(-31));
 
-        var testFile2Path = Path.Combine(_testDir, "TestFile2.txt");
+        var testFile2Path = Path.Combine(fixture._testDir, "TestFile2.txt");
         File.WriteAllText(testFile2Path, "This file should be deleted.");
         File.SetCreationTime(testFile2Path, now.AddDays(-31));
 
-        var testFile3Path = Path.Combine(_testDir, "TestFile3.txt");
+        var testFile3Path = Path.Combine(fixture._testDir, "TestFile3.txt");
         File.WriteAllText(testFile3Path, "This file should be deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
@@ -62,7 +50,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
     {
         var fakeLogger = new FakeLogger<DirectoryCleaner>();
 
-        var testCleanupDir = new CleanupDirectory(_testDir)
+        var testCleanupDir = new CleanupDirectory(fixture._testDir)
         {
             Extensions = ["*"],
             TicksSinceCreation = TimeSpan.FromDays(30).Ticks
@@ -70,16 +58,16 @@ public class AutomatedDirectoryCleanupTests : IDisposable
 
         var now = DateTime.Now;
 
-        var testFile1Path = Path.Combine(_testDir, "TestFile1.txt");
+        var testFile1Path = Path.Combine(fixture._testDir, "TestFile1.txt");
         File.WriteAllText(testFile1Path, "This file should be deleted.");
         File.SetCreationTime(testFile1Path, now.AddDays(-31));
 
-        var testFile2Path = Path.Combine(_testDir, "TestFile2.txt");
+        var testFile2Path = Path.Combine(fixture._testDir, "TestFile2.txt");
         File.WriteAllText(testFile2Path, "This file should be locked.");
         File.SetCreationTime(testFile2Path, now.AddDays(-31));
         using var lockStream = File.OpenRead(testFile2Path);
 
-        var testFile3Path = Path.Combine(_testDir, "TestFile3.txt");
+        var testFile3Path = Path.Combine(fixture._testDir, "TestFile3.txt");
         File.WriteAllText(testFile3Path, "This file should be deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
@@ -95,7 +83,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
     {
         var fakeLogger = new FakeLogger<DirectoryCleaner>();
 
-        var testCleanupDir = new CleanupDirectory(_testDir)
+        var testCleanupDir = new CleanupDirectory(fixture._testDir)
         {
             Extensions = ["txt"],
             TicksSinceCreation = TimeSpan.FromDays(30).Ticks
@@ -103,15 +91,15 @@ public class AutomatedDirectoryCleanupTests : IDisposable
 
         var now = DateTime.Now;
 
-        var testFile1Path = Path.Combine(_testDir, "TestFile1.tmp");
+        var testFile1Path = Path.Combine(fixture._testDir, "TestFile1.tmp");
         File.WriteAllText(testFile1Path, "This file should be not deleted.");
         File.SetCreationTime(testFile1Path, now.AddDays(-31));
 
-        var testFile2Path = Path.Combine(_testDir, "TestFile2.txt");
+        var testFile2Path = Path.Combine(fixture._testDir, "TestFile2.txt");
         File.WriteAllText(testFile2Path, "This file should be deleted.");
         File.SetCreationTime(testFile2Path, now.AddDays(-31));
 
-        var testFile3Path = Path.Combine(_testDir, "TestFile3.log");
+        var testFile3Path = Path.Combine(fixture._testDir, "TestFile3.log");
         File.WriteAllText(testFile3Path, "This file should be not deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
@@ -127,7 +115,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
     {
         var fakeLogger = new FakeLogger<DirectoryCleaner>();
 
-        var testCleanupDir = new CleanupDirectory(_testDir)
+        var testCleanupDir = new CleanupDirectory(fixture._testDir)
         {
             Extensions = ["txt", "tmp"],
             TicksSinceCreation = TimeSpan.FromDays(30).Ticks
@@ -135,15 +123,15 @@ public class AutomatedDirectoryCleanupTests : IDisposable
 
         var now = DateTime.Now;
 
-        var testFile1Path = Path.Combine(_testDir, "TestFile1.tmp");
+        var testFile1Path = Path.Combine(fixture._testDir, "TestFile1.tmp");
         File.WriteAllText(testFile1Path, "This file should be not deleted.");
         File.SetCreationTime(testFile1Path, now.AddDays(-31));
 
-        var testFile2Path = Path.Combine(_testDir, "TestFile2.txt");
+        var testFile2Path = Path.Combine(fixture._testDir, "TestFile2.txt");
         File.WriteAllText(testFile2Path, "This file should be deleted.");
         File.SetCreationTime(testFile2Path, now.AddDays(-31));
 
-        var testFile3Path = Path.Combine(_testDir, "TestFile3.log");
+        var testFile3Path = Path.Combine(fixture._testDir, "TestFile3.log");
         File.WriteAllText(testFile3Path, "This file should be not deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
@@ -159,7 +147,7 @@ public class AutomatedDirectoryCleanupTests : IDisposable
     {
         var fakeLogger = new FakeLogger<DirectoryCleaner>();
 
-        var testCleanupDir = new CleanupDirectory(_testDir)
+        var testCleanupDir = new CleanupDirectory(fixture._testDir)
         {
             Extensions = ["*"],
             TicksSinceCreation = TimeSpan.FromDays(30).Ticks
@@ -167,14 +155,14 @@ public class AutomatedDirectoryCleanupTests : IDisposable
 
         var now = DateTime.Now;
 
-        var testFile1Path = Path.Combine(_testDir, "TestFile1.txt");
+        var testFile1Path = Path.Combine(fixture._testDir, "TestFile1.txt");
         File.WriteAllText(testFile1Path, "This file should be deleted.");
         File.SetCreationTime(testFile1Path, now.AddDays(-31));
 
-        var testFile2Path = Path.Combine(_testDir, "TestFile2.txt");
+        var testFile2Path = Path.Combine(fixture._testDir, "TestFile2.txt");
         File.WriteAllText(testFile2Path, "This file should not be deleted.");
 
-        var testFile3Path = Path.Combine(_testDir, "TestFile3.txt");
+        var testFile3Path = Path.Combine(fixture._testDir, "TestFile3.txt");
         File.WriteAllText(testFile3Path, "This file should be deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
@@ -183,27 +171,5 @@ public class AutomatedDirectoryCleanupTests : IDisposable
         var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 
         Assert.Equal(2, deletedCount);
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!_disposed)
-        {
-            if (disposing)
-            {
-                if (Directory.Exists(_testDir))
-                {
-                    Directory.Delete(_testDir, true);
-                }
-            }
-
-            _disposed = true;
-        }
     }
 }
