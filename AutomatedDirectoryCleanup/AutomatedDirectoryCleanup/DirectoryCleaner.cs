@@ -44,7 +44,7 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger) : IDirectoryClea
         var pipelineBuilder = new ResiliencePipelineBuilder().AddRetry(retryStrategyOptions).Build();
 
         var numberOfFilesDeleted = 0;
-        var exceptions = new ConcurrentQueue<Exception>();
+        var exceptions = new ConcurrentBag<Exception>();
         Parallel.ForEach(
             filesToDelete,
             () => 0, // localInit: Function to initialize the local counter for each task (starts at 0)
@@ -61,7 +61,7 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger) : IDirectoryClea
             }
             catch (Exception ex)
             {
-                exceptions.Enqueue(ex);
+                exceptions.Add(ex);
             }
 
             return localCount;
