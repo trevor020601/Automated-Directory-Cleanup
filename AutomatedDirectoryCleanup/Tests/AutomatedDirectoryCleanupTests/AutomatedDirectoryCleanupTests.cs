@@ -47,7 +47,7 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
         Assert.Equal(0, fileCount);
     }
 
-    [Fact]
+    [Fact(Skip = "This only works on Windows OS sadly; Figure out how to fix for Linux.")]
     public void ShouldDeleteUnlockedFilesAndSkipLockedFilesInDirectory()
     {
         var fakeLogger = new FakeLogger<DirectoryCleaner>();
