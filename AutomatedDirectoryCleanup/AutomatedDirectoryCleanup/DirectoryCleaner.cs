@@ -6,12 +6,12 @@ namespace AutomatedDirectoryCleanup;
 
 public interface IDirectoryCleaner
 {
-    public int DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory);
+    public void DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory);
 }
 
 public class DirectoryCleaner(ILogger<DirectoryCleaner> logger) : IDirectoryCleaner
 {
-    public int DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory)
+    public void DeleteOldFilesByExtension(CleanupDirectory cleanupDirectory)
     {
         if (!cleanupDirectory.Exists)
         {
@@ -73,12 +73,7 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger) : IDirectoryClea
 
         if (!exceptions.IsEmpty)
         {
-            foreach (var ex in exceptions)
-            {
-                logger.LogError(ex, "An exception has occurred during the clean up: {Message}", ex.Message);
-            }
+            throw new AggregateException(exceptions);
         }
-
-        return numberOfFilesDeleted;
     }
 }

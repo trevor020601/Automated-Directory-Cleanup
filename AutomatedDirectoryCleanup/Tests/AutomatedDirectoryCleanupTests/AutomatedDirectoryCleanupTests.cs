@@ -40,12 +40,14 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
 
         var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
 
-        var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
+        testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
+        
+        var fileCount = new DirectoryInfo(fixture._testDir).EnumerateFiles().Count();
 
-        Assert.Equal(3, deletedCount);
+        Assert.Equal(0, fileCount);
     }
 
-    [Fact(Skip = "This only works on Windows OS sadly; Figure out how to fix for Linux.")]
+    [Fact]
     public void ShouldDeleteUnlockedFilesAndSkipLockedFilesInDirectory()
     {
         var fakeLogger = new FakeLogger<DirectoryCleaner>();
@@ -73,9 +75,11 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
 
         var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
 
-        var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
+        Assert.Throws<AggregateException>(() => testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir));
 
-        Assert.Equal(2, deletedCount);
+        var fileCount = new DirectoryInfo(fixture._testDir).EnumerateFiles().Count();
+
+        Assert.Equal(1, fileCount);
     }
 
     [Fact]
@@ -105,9 +109,11 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
 
         var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
 
-        var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
+        testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 
-        Assert.Equal(1, deletedCount);
+        var fileCount = new DirectoryInfo(fixture._testDir).EnumerateFiles().Count();
+
+        Assert.Equal(2, fileCount);
     }
 
     [Fact]
@@ -137,9 +143,11 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
 
         var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
 
-        var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
+        testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 
-        Assert.Equal(2, deletedCount);
+        var fileCount = new DirectoryInfo(fixture._testDir).EnumerateFiles().Count();
+
+        Assert.Equal(1, fileCount);
     }
 
     [Fact]
@@ -168,8 +176,10 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
 
         var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
 
-        var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
+        testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 
-        Assert.Equal(2, deletedCount);
+        var fileCount = new DirectoryInfo(fixture._testDir).EnumerateFiles().Count();
+
+        Assert.Equal(1, fileCount);
     }
 }

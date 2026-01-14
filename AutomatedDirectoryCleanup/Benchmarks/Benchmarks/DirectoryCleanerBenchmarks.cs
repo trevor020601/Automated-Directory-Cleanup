@@ -35,7 +35,7 @@ public class DirectoryCleanerBenchmarks
     }
 
     [Benchmark]
-    public int ParallelDirectoryCleaner()
+    public void ParallelDirectoryCleaner()
     {
         var fakeLogger = new FakeLogger<DirectoryCleaner>();
 
@@ -47,9 +47,7 @@ public class DirectoryCleanerBenchmarks
 
         var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
 
-        var deletedCount = testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
-
-        return deletedCount;
+        testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
     }
 
     [GlobalCleanup]
