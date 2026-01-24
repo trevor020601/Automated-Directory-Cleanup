@@ -1,5 +1,4 @@
 ﻿using AutomatedDirectoryCleanup;
-using Microsoft.Extensions.Logging.Testing;
 
 namespace AutomatedDirectoryCleanupTests;
 
@@ -16,8 +15,6 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
     [Fact]
     public void ShouldDeleteAllFilesInDirectory()
     {
-        var fakeLogger = new FakeLogger<DirectoryCleaner>();
-
         var testCleanupDir = new CleanupDirectory(fixture._testDir)
         {
             Extensions = ["*"],
@@ -38,7 +35,7 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
         File.WriteAllText(testFile3Path, "This file should be deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
-        var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
+        var testDirectoryCleaner = new DirectoryCleaner(fixture._fakeLogger);
 
         testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
         
@@ -50,8 +47,6 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
     [Fact(Skip = "This only works on Windows OS sadly; Figure out how to fix for Linux.")]
     public void ShouldDeleteUnlockedFilesAndSkipLockedFilesInDirectory()
     {
-        var fakeLogger = new FakeLogger<DirectoryCleaner>();
-
         var testCleanupDir = new CleanupDirectory(fixture._testDir)
         {
             Extensions = ["*"],
@@ -73,7 +68,7 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
         File.WriteAllText(testFile3Path, "This file should be deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
-        var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
+        var testDirectoryCleaner = new DirectoryCleaner(fixture._fakeLogger);
 
         Assert.Throws<AggregateException>(() => testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir));
 
@@ -85,8 +80,6 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
     [Fact]
     public void ShouldOnlyDeleteFilesWithTxtExtension()
     {
-        var fakeLogger = new FakeLogger<DirectoryCleaner>();
-
         var testCleanupDir = new CleanupDirectory(fixture._testDir)
         {
             Extensions = ["txt"],
@@ -107,7 +100,7 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
         File.WriteAllText(testFile3Path, "This file should be not deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
-        var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
+        var testDirectoryCleaner = new DirectoryCleaner(fixture._fakeLogger);
 
         testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 
@@ -119,8 +112,6 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
     [Fact]
     public void ShouldOnlyDeleteFilesWithTxtAndTmpExtensions()
     {
-        var fakeLogger = new FakeLogger<DirectoryCleaner>();
-
         var testCleanupDir = new CleanupDirectory(fixture._testDir)
         {
             Extensions = ["txt", "tmp"],
@@ -141,7 +132,7 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
         File.WriteAllText(testFile3Path, "This file should be not deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
-        var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
+        var testDirectoryCleaner = new DirectoryCleaner(fixture._fakeLogger);
 
         testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 
@@ -153,8 +144,6 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
     [Fact]
     public void ShouldOnlyDeleteFilesOlderThanTicksSinceCreation()
     {
-        var fakeLogger = new FakeLogger<DirectoryCleaner>();
-
         var testCleanupDir = new CleanupDirectory(fixture._testDir)
         {
             Extensions = ["*"],
@@ -174,7 +163,40 @@ public class AutomatedDirectoryCleanupTests(SharedDirectoryFixture fixture)
         File.WriteAllText(testFile3Path, "This file should be deleted.");
         File.SetCreationTime(testFile3Path, now.AddDays(-31));
 
-        var testDirectoryCleaner = new DirectoryCleaner(fakeLogger);
+        var testDirectoryCleaner = new DirectoryCleaner(fixture._fakeLogger);
+
+        testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
+
+        var fileCount = new DirectoryInfo(fixture._testDir).EnumerateFiles().Count();
+
+        Assert.Equal(1, fileCount);
+    }
+
+    [Fact]
+    public void ShouldNotDeleteHiddenFiles()
+    {
+        var testCleanupDir = new CleanupDirectory(fixture._testDir)
+        {
+            Extensions = ["*"],
+            TicksSinceCreation = TimeSpan.FromDays(30).Ticks
+        };
+
+        var now = DateTime.Now;
+
+        var testFile1Path = Path.Combine(fixture._testDir, "TestFile1.txt");
+        File.WriteAllText(testFile1Path, "This file should be deleted.");
+        File.SetCreationTime(testFile1Path, now.AddDays(-31));
+
+        var testFile2Path = Path.Combine(fixture._testDir, "TestFile2.txt");
+        File.WriteAllText(testFile2Path, "This file should not be deleted.");
+        File.SetCreationTime(testFile2Path, now.AddDays(-31));
+        File.SetAttributes(testFile2Path, FileAttributes.Hidden);
+
+        var testFile3Path = Path.Combine(fixture._testDir, "TestFile3.txt");
+        File.WriteAllText(testFile3Path, "This file should be deleted.");
+        File.SetCreationTime(testFile3Path, now.AddDays(-31));
+
+        var testDirectoryCleaner = new DirectoryCleaner(fixture._fakeLogger);
 
         testDirectoryCleaner.DeleteOldFilesByExtension(testCleanupDir);
 

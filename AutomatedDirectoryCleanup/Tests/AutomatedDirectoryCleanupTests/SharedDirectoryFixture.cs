@@ -1,9 +1,13 @@
-﻿namespace AutomatedDirectoryCleanupTests;
+﻿using AutomatedDirectoryCleanup;
+using Microsoft.Extensions.Logging.Testing;
+
+namespace AutomatedDirectoryCleanupTests;
 
 public class SharedDirectoryFixture : IDisposable
 {
     internal readonly string _testDir = Path.Combine(Path.GetTempPath(), "AutomatedDirectoryCleanupTestDir");
     private bool _disposed;
+    internal readonly FakeLogger<DirectoryCleaner> _fakeLogger = new();
 
     public SharedDirectoryFixture()
     {

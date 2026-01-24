@@ -20,7 +20,8 @@ public class DirectoryCleaner(ILogger<DirectoryCleaner> logger) : IDirectoryClea
 
         var filesToDelete = cleanupDirectory.Extensions
             .SelectMany(extension => cleanupDirectory.Directory.EnumerateFiles($"*.{extension}"))
-            .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.TimeSpanSinceCreation.Days));
+            .Where(f => f.CreationTime < DateTime.Now.AddDays(-cleanupDirectory.TimeSpanSinceCreation.Days) &&
+                               !f.Attributes.HasFlag(FileAttributes.Hidden));
 
         var lockedFilePredicate = OperatingSystem.IsWindows() ?
             new PredicateBuilder().Handle<IOException>(ex => (ex.HResult & FileIOConstants._errorCodeBits) == FileIOConstants._errorCodeSharingViolationWindows) :
